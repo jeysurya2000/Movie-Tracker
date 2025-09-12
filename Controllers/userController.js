@@ -6,7 +6,6 @@ const upload = require('../utils/uploadImg')
 const router = express.Router()
 require('../db')
 const User = require('../Models/user')
-const _SECRET = 'shhhhh'
 
 // User Registering in Database 
 router.post('/', upload.single('proImg'), async (req, res) => {
@@ -31,7 +30,7 @@ router.post('/login', async (req, res) => {
         if (loginUser) {
             const isMatch = bcrypt.compareSync(password, loginUser.password)
             if (isMatch) {
-                const token = jwt.sign({ _id: loginUser._id, email: loginUser.email }, _SECRET)
+                const token = jwt.sign({ _id: loginUser._id, email: loginUser.email }, process.env.JWT_SECRET)
                 res.send({ message: "password matched.. Logged In Successfully", token })
             }
             else

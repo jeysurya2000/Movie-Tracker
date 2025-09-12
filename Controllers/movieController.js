@@ -1,13 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
-const _SECRET = 'shhhhh'
 require('../db')
 const Movie = require('../Models/movie')
 
 router.post('/addMovie', async (req, res) => {
     const token = req.headers.authorization.slice(7)
-    const decode = jwt.verify(token, _SECRET)
+    const decode = jwt.verify(token, process.env.JWT_SECRET)
     const movie = new Movie({
         user: decode._id,
         name: req.body.name,
@@ -24,14 +23,14 @@ router.get('/viewMoviesList', async (req, res) => {
 })
 router.get('/viewUserMovie', async (req, res) => {
     const token = req.headers.authorization.slice(7)
-    const decode = jwt.verify(token, _SECRET)
+    const decode = jwt.verify(token, process.env.JWT_SECRET)
     const userMovie = await Movie.find({ user: decode._id }).populate('user')
     res.send(userMovie)
 })
 router.patch('/markAswatched/:id', async (req, res) => {
     const id = req.params.id
     const token = req.headers.authorization.slice(7)
-    const decode = jwt.verify(token, _SECRET)
+    const decode = jwt.verify(token, process.env.JWT_SECRET)
     const user = await Movie.findOne({ _id: id })
     if (decode._id == user.user) {
         const updatedMovie = await Movie.findOneAndUpdate({ _id: id }, { $set: { isWatched: true, isPartiallyWatched: false } });
@@ -44,7 +43,7 @@ router.patch('/markAswatched/:id', async (req, res) => {
 router.patch('/markNotWatched/:id', async (req, res) => {
     const id = req.params.id
     const token = req.headers.authorization.slice(7)
-    const decode = jwt.verify(token, _SECRET)
+    const decode = jwt.verify(token, process.env.JWT_SECRET)
     const user = await Movie.find({ _id: id })
     if (decode._id == user.user) {
         const updatedMovie = await Movie.findOneAndUpdate({ _id: id }, { $set: { isWatched: false, isPartiallyWatched: false } });
