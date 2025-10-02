@@ -27,6 +27,13 @@ router.get('/viewUserMovie', async (req, res) => {
     const userMovie = await Movie.find({ user: decode._id }).populate('user')
     res.send(userMovie)
 })
+router.get('/viewMovieDetail/:id', async (req, res) => {
+    const id = req.params.id
+    const token = req.headers.authorization.slice(7)
+    const decode = jwt.verify(token, process.env.JWT_SECRET)
+    const movie = await Movie.findOne ({ _id: id })
+    res.send(movie)
+})
 router.patch('/markAswatched/:id', async (req, res) => {
     const id = req.params.id
     const token = req.headers.authorization.slice(7)
@@ -53,6 +60,20 @@ router.patch('/markNotWatched/:id', async (req, res) => {
         res.send({ message: 'You are not the user to update' })
     }
 
+})
+
+router.patch('/partiallyWatched/:id', async (req, res) => {
+    const id = req.params.id
+    const token = req.headers.authorization.slice(7)
+    const decode = jwt.verify(token, process.env.JWT_SECRET)
+    const user = await Movie.findOne({ _id: id })
+    if (decode._id == user.user) {
+        const updatedMovie = await Movie.findOneAndUpdate({ _id: id }, { $set: { isPartiallyWatched: true } });
+        res.send({ message: `Updated Successfully as watched ${updatedMovie.name}` })
+    }
+    else {
+        res.send({ message: 'You are not the user to update' })
+    }
 })
 
 module.exports = router
